@@ -1,7 +1,10 @@
 import java.io.*;
 import java.util.*;
 
-// This is good for collaborative working but we'll probably want to run it in our own environment because of speed.
+// This code is a MIPS Simulator that can run a MIPS assembly file
+// The simulator can run all instructions, step through instructions, dump memory, view register contents, modify register contents, and see the current instruction and PC
+// The simulator can also handle comments and blank lines in the assembly file
+// The simulator can also handle negative numbers
 class Simulator {
     // Stores words as memory
     static String[] memory;
@@ -23,6 +26,7 @@ class Simulator {
 
         // Create new Registers
         registers = new int[32];
+        registers[29] = maxMemorySize - 1;
 
         // ASK FOR WHAT FILE TO LOAD
         Scanner userInputReader = new Scanner(System.in);
@@ -43,6 +47,7 @@ class Simulator {
             System.out.println("DUMP: Perform a memory dump");
             System.out.println("VIEW: View register contents");
             System.out.println("MODIFY: Modify a register value");
+            System.out.println("BREAK: Set a breakpoint and run until that breakpoint");
             System.out.println("SEE: See the current instruction and PC");
             System.out.println("QUIT: Exit the simulator");
 
@@ -88,6 +93,13 @@ class Simulator {
                     System.out.println("PC: " + PC);
                     System.out.println("Instruction: " + memory[PC]);
                     break;
+                
+                case "BREAK":
+                    System.out.println("What location do you wish to set a breakpoint");
+                    int breakPoint = userInputReader.nextInt();
+                    userInputReader.nextLine(); // Clear the buffer
+                    runToBreakpoint(breakPoint);
+                    break;
 
                 default:
                     userInput = "QUIT";
@@ -106,6 +118,15 @@ class Simulator {
         while (memory[PC] != null) {
             execute();
         }
+    }
+
+    // Run To Breakpoint - Runs instructions until it reaches a breakpoint
+    static void runToBreakpoint(int breakpoint) throws Exception {
+        while (PC != breakpoint) {
+            execute();
+        }
+
+        System.out.println("Breakpoint Reached. Now at PC: " + PC);
     }
 
     static void loadFile(String path) throws Exception 
@@ -203,7 +224,11 @@ class Simulator {
 
                 // SRL
                 case "000010":
-                    srl(rdVal, rtVal, shamtVal);
+                    if(shamtVal == 0)
+                        mul(rdVal, rsVal, rtVal);
+
+                    else
+                        srl(rdVal, rtVal, shamtVal);
                     break;
 
                 // ADD RS, RT, RD
@@ -236,6 +261,11 @@ class Simulator {
                     xor(rdVal, rsVal, rtVal);
                     break;
 
+                //SYSCALL
+                case "001100":
+                    syscall();
+                    break;
+
             }
         }
 
@@ -265,6 +295,16 @@ class Simulator {
                 case "001110":
                     xori(rtVal, rsVal, immVal);
                     break;
+                
+                // SW
+                case "101011":
+                    sw(rtVal, rsVal, immVal);
+                    break;
+                
+                // LW
+                case "100011":
+                    lw(rtVal, rsVal, immVal);
+                    break;
 
             }
         }
@@ -290,6 +330,12 @@ class Simulator {
 
     static void sub(int rd, int rs, int rt) {
         registers[rd] = registers[rs] - registers[rt];
+    }
+    
+    //MUL (without overflow)
+    static void mul(int rd, int rs, int rt)
+    {
+        registers[rd] = registers[rs] * registers[rt];
     }
 
     static void and(int rd, int rs, int rt) {
@@ -339,8 +385,10 @@ class Simulator {
         registers[rd] = registers[rt] >>> shamt;
     }
 
-    static void syscall() {
-        switch (registers[2]) {
+    static void syscall() throws Exception
+    {
+        switch (registers[2]) 
+        {
             // PRINT INT
             case 1:
                 System.out.println(registers[4]);
@@ -351,13 +399,14 @@ class Simulator {
                 Scanner scan = new Scanner(System.in);
                 registers[2] = scan.nextInt();
 
-                // EXIT
+            // EXIT
             case 10:
+                System.out.println("Syscall exit... ending Program");
                 System.exit(0);
                 break;
 
             default:
-                System.out.println("Not a code");
+                throw new Exception("Not a valid syscall code");
         }
     }
 
@@ -401,6 +450,18 @@ class Simulator {
         if (imm > 32767) {
             imm = -(65536 - imm); // Convert to signed
         }
-        registers[rt] = Integer.parseInt(memory[registers[rs] + imm]);
+
+        imm = imm / 4;
+        registers[rt] = Integer.parseInt(memory[rs + imm], 2);
+    }
+
+    // Store Word
+    static void sw(int rt, int rs, int imm) {
+        if (imm > 32767) {
+            imm = -(65536 - imm); // Convert to signed
+        }
+
+        imm = imm / 4;
+        memory[rs + imm] = Integer.toBinaryString(registers[rt]);
     }
 }
