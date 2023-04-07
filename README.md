@@ -5,7 +5,7 @@ This simulator was built as a school project for the course CS 3813: Computer Or
 
 <h3 style="text-align: center;">
 
-![https://github.com/TheAidenTv](https://img.shields.io/badge/Aiden%20Timmons-GitHub-orange) &nbsp;&nbsp;&nbsp; ![https://github.com/IsaacPeacock](https://img.shields.io/badge/Isaac%20Peacock-GitHub-orange)
+[![https://github.com/TheAidenTv](https://img.shields.io/badge/Aiden%20Timmons-GitHub-orange)](https://github.com/TheAidenTv) &nbsp;&nbsp;&nbsp; [![https://github.com/IsaacPeacock](https://img.shields.io/badge/Isaac%20Peacock-GitHub-orange)](https://github.com/IsaacPeacock)
 
 </h3>
 
