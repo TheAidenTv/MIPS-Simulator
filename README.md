@@ -1,6 +1,14 @@
 # MIPS Simulator
 The MIPS Simulator is a Java-based program that simulates the behavior of the MIPS instruction set architecture. The program allows users to load binary MIPS code and run the instructions with a text-based user interface.
 
+This simulator was built as a school project for the course CS 3813: Computer Organisation and Architecutre at the University of New Brunswick by students:
+
+<h3 style="text-align: center;">
+
+![https://github.com/TheAidenTv](https://img.shields.io/badge/Aiden%20Timmons-GitHub-orange) &nbsp;&nbsp;&nbsp; ![https://github.com/IsaacPeacock](https://img.shields.io/badge/Isaac%20Peacock-GitHub-orange)
+
+</h3>
+
 ## Purpose
 The purpose of this project is to provide a deeper understanding of the MIPS instruction set architecture and to provide a fun problem to solve. The simulator is designed for educational purposes and can be used to teach students how to program in MIPS.
 
