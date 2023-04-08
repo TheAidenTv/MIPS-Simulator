@@ -15,6 +15,7 @@ class Simulator {
 
     // Standard MIPS Registers
     static int[] registers;
+    static String[] registerNames;
 
     // Placeholders
     static String opcode, rs, rt, rd, shamt, funct, immediate;
@@ -23,6 +24,40 @@ class Simulator {
     public static void main(String[] args) throws Exception {
         // Instantiate the memory location
         memory = new String[maxMemorySize];
+
+        registerNames = new String[32];
+        registerNames[0] = "$zero";
+        registerNames[1] = "$at";
+        registerNames[2] = "$v0";
+        registerNames[3] = "$v1";
+        registerNames[4] = "$a0";
+        registerNames[5] = "$a1";
+        registerNames[6] = "$a2";
+        registerNames[7] = "$a3";
+        registerNames[8] = "$t0";
+        registerNames[9] = "$t1";
+        registerNames[10] = "$t2";
+        registerNames[11] = "$t3";
+        registerNames[12] = "$t4";
+        registerNames[13] = "$t5";
+        registerNames[14] = "$t6";
+        registerNames[15] = "$t7";
+        registerNames[16] = "$s0";
+        registerNames[17] = "$s1";
+        registerNames[18] = "$s2";
+        registerNames[19] = "$s3";
+        registerNames[20] = "$s4";
+        registerNames[21] = "$s5";
+        registerNames[22] = "$s6";
+        registerNames[23] = "$s7";
+        registerNames[24] = "$t8";
+        registerNames[25] = "$t9";
+        registerNames[26] = "$k0";
+        registerNames[27] = "$k1";
+        registerNames[28] = "$gp";
+        registerNames[29] = "$sp";
+        registerNames[30] = "$fp";
+        registerNames[31] = "$ra";
 
         // Create new Registers
         registers = new int[32];
@@ -182,7 +217,7 @@ class Simulator {
     // Print Register Contents
     static void printRegisterContents() {
         for (int i = 0; i < registers.length; i++) {
-            System.out.printf("R%d: %5d\n", i, registers[i]);
+            System.out.printf("%s: %5d\n", registerNames[i], registers[i]);
         }
     }
 
@@ -231,6 +266,11 @@ class Simulator {
                         srl(rdVal, rtVal, shamtVal);
                     break;
 
+                //JR
+                case "001000":
+                    jr(rsVal);
+                    break;
+
                 // ADD RS, RT, RD
                 case "100000":
                     add(rdVal, rsVal, rtVal);
@@ -261,10 +301,18 @@ class Simulator {
                     xor(rdVal, rsVal, rtVal);
                     break;
 
+                //SLT
+                case "101010":
+                    slt(rdVal, rsVal, rtVal);
+                    break;
+
                 //SYSCALL
                 case "001100":
                     syscall();
                     break;
+                
+                default:
+                    throw new Exception(instruction + " is not a valid instruction");
 
             }
         }
@@ -276,6 +324,16 @@ class Simulator {
 
             switch (opcode) 
 			{
+                //J
+                case "000010":
+                    j(addrVal);
+                    break;
+                
+                //JAL
+                case "000011":
+                    jal(addrVal);
+                    break;
+
                 // ADDI
                 case "001000":
                     addi(rtVal, rsVal, immVal);
@@ -286,6 +344,11 @@ class Simulator {
                     andi(rtVal, rsVal, immVal);
                     break;
 
+                //SLTI
+                case "001010":
+                    slti(rdVal, rsVal, immVal);
+                    break;
+
                 // ORI
                 case "001101":
                     ori(rtVal, rsVal, immVal);
@@ -294,6 +357,11 @@ class Simulator {
                 // XORI
                 case "001110":
                     xori(rtVal, rsVal, immVal);
+                    break;
+
+                //LI
+                case "001111":
+                    li(rsVal, immVal);
                     break;
                 
                 // SW
@@ -306,6 +374,8 @@ class Simulator {
                     lw(rtVal, rsVal, immVal);
                     break;
 
+                default:
+                throw new Exception(instruction + " is not a valid instruction");
             }
         }
 
@@ -406,7 +476,7 @@ class Simulator {
                 break;
 
             default:
-                throw new Exception("Not a valid syscall code");
+                throw new Exception(registers[2] + " is not a valid syscall code");
         }
     }
 
@@ -453,6 +523,16 @@ class Simulator {
 
         imm = imm / 4;
         registers[rt] = Integer.parseInt(memory[rs + imm], 2);
+    }
+
+    // Load Immediate
+    static void li(int rd, int imm)
+    {
+        if (imm > 32767) 
+        {
+            imm = -(65536 - imm); // Convert to signed
+        }
+        registers[rd] = imm;
     }
 
     // Store Word
